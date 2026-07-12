@@ -16,14 +16,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
 
-if(process.env.NODE_ENV === "production") {
-  // Change back to "../" so it points directly to /opt/render/project/frontend/dist
-  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(process.cwd(), "frontend", "dist")));
 
-  app.get("*",(_,res) => {
-    // Change back to "../" here as well
-    res.sendFile(path.join(__dirname,"../frontend", "dist", "index.html"))
+  app.get("*", (_, res) => {
+    res.sendFile(path.join(process.cwd(), "frontend", "dist", "index.html"));
   });
 }
-
 app.listen(PORT, () => console.log("Server running on port: " + PORT));
