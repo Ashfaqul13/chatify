@@ -17,10 +17,12 @@ app.use("/api/messages", messageRoutes);
 
 
 if(process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+  // 1. Changed "../" to "../../" so it hops out of both 'src' and 'backend' folders
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")))
 
   app.get("*",(_,res) => {
-    res.sendFile(path.join(__dirname,"../frontend", "dist", "indexed.html"))
+    // 2. Fixed the typo from "indexed.html" to "index.html"
+    res.sendFile(path.join(__dirname,"../../frontend", "dist", "index.html"))
   });
 }
 
