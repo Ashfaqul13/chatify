@@ -35,10 +35,13 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
     });
+    if (newUser){
+      //generateToken(newUser._id, res);
 
-    await newUser.save();
+    //await newUser.save();
 
     // 5. Generate Token & Respond (Only after successful save)
+    const savedUser = await newUser.save();
     generateToken(newUser._id, res);
 
     return res.status(201).json({
@@ -47,6 +50,7 @@ export const signup = async (req, res) => {
       email: newUser.email,
       profilePic: newUser.profilePic || "", // Safely handle if profilePic defaults to undefined
     });
+  }
 
   } catch (error) {
     console.log("Error in signup controller:", error);
