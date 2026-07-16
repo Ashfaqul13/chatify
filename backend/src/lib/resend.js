@@ -1,5 +1,6 @@
 // 1. Force dotenv to load FIRST
 import "dotenv/config"; 
+import { Resend } from "resend";
 import { ENV } from "./env.js";
 
 // 2. Now process.env.RESEND_API_KEY is guaranteed to exist
