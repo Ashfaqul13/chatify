@@ -1,6 +1,10 @@
+import { sendWelcomeEmail } from "../emails/emailHandlers.js";
+import { ENV } from "../lib/env.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import { ENV } from "../lib/env.js";
+
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -35,22 +39,27 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
     });
-    if (newUser){
-      //generateToken(newUser._id, res);
 
-    //await newUser.save();
+    if (newUser) {
+      // 5. Save User & Generate Token
+      const savedUser = await newUser.save();
+      generateToken(savedUser._id, res);
 
-    // 5. Generate Token & Respond (Only after successful save)
-    const savedUser = await newUser.save();
-    generateToken(newUser._id, res);
+      // 6. Send Welcome Email (Fired BEFORE the return statement)
+      // We don't use 'await' here so the user doesn't wait for Resend's API response
+      sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL)
+        .catch((error) => console.error("Failed to send welcome email:", error));
 
-    return res.status(201).json({
-      _id: newUser._id,
-      fullName: newUser.fullName,
-      email: newUser.email,
-      profilePic: newUser.profilePic || "", // Safely handle if profilePic defaults to undefined
-    });
-  }
+      // 7. Respond to Postman
+      return res.status(201).json({
+        _id: savedUser._id,
+        fullName: savedUser.fullName,
+        email: savedUser.email,
+        profilePic: savedUser.profilePic || "", 
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid user data" });
+    }
 
   } catch (error) {
     console.log("Error in signup controller:", error);
